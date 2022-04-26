@@ -1,0 +1,123 @@
+///Rakin Mohammad Sifullah
+///18101003
+///4-2(A1)
+
+#include<windows.h>
+#define GL_SILENCE_DEPRECATION
+#include <GL/glut.h>
+#include<stdlib.h>
+
+void init()
+{
+    glClearColor(0,1,1,1);  ///window color
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-2,2,-2,2,-2,2);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void ball()
+{
+    glColor3f(0, 0.5, 0.5);     ///ball color
+    glutWireSphere(0.2, 25, 25);    ///ball shape(size)
+}
+
+void basket()
+{
+    glColor3f(1, 0, 0);     ///basket color
+    glutWireCone(0.3, 0.5, 25, 25); ///basket shape(size)
+}
+
+void poll()
+{
+    glColor3f(0, 0, 0);     ///poll color
+    glutSolidCube(1);   ///pole shape(size)
+}
+
+float ballX=0,ballY=1.8,basketX=0,basketY=-1.5,pollX=0.9,pollY=1.8;
+int rand(),r,flagout=0;
+
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+    if(ballY<-1.5&&(ballX>basketX-0.3&&ballX<basketX+0.3))
+    {
+      {
+        ballY=1.8;
+        r=rand()%4;
+        if(r==0)
+        {
+            ballX=-1.8;
+            pollX=-1.8+0.9;
+        }
+        if(r==1)
+        {
+            ballX=-1;
+            pollX=-1+0.9;
+        }
+        if(r==2)
+        {
+            ballX=1;
+            pollX=1+0.9;
+        }
+        if(r==3)
+        {
+            ballX=1.8;
+            pollX=1.8+0.9;
+        }
+      }
+    }
+
+    if(flagout==0)
+    {
+        ballY-=0.001; ///ball falling speed by decrement ball position in y axis
+    }
+
+    if(ballY<-2)
+    {
+        flagout=1;
+    }
+
+    glPushMatrix();                 ///push and pop matrix control the translation only for ball object
+    glTranslatef(ballX, ballY, 0);
+    ball();
+    glPopMatrix();
+
+    glPushMatrix();                     ///push and pop matrix control the translation and rotation only for basket object
+    glTranslatef(basketX, basketY, 0);
+    glRotatef(90, 1, 0, 0);             ///for basket rotation
+    basket();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(pollX, pollY, 0); ///move the poll top
+    glScalef(1.5, 0.5, 1);        ///poll size
+    poll();
+    glPopMatrix();
+
+    glutSwapBuffers();
+    glutPostRedisplay(); ///execute the display again and again
+}
+
+void skeys(int key, int x, int y)
+{
+    if(key==GLUT_KEY_LEFT)
+        basketX-=0.6;           ///basket movement in -X coordinate
+    if(key==GLUT_KEY_RIGHT)
+        basketX+=0.6;           ///basket movement in +X coordinate
+}
+
+int main(int argc, char **argv)
+{
+    glutInit(&argc,argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
+    glutInitWindowSize(500,500);
+    glutCreateWindow("18101003");
+    init();
+    glutDisplayFunc(display);
+    glutSpecialFunc(skeys);     ///for keyboard use
+    glEnable(GL_DEPTH_TEST); ///to create 3D objects
+    glutMainLoop();
+    return 0;
+}
